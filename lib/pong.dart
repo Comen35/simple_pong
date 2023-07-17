@@ -25,9 +25,10 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   late AnimationController controller;
   Direction vDir = Direction.down;
   Direction hDir = Direction.right;
-  double increment = 3;
+  double increment = 5;
   double randX = 1;
   double randY = 1;
+  int score = 0;
 
   @override
   void initState() {
@@ -70,6 +71,18 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         return Stack(
           children: [
             Positioned(
+              top: 10,
+              right: 24,
+              child: Text(
+                'Score: $score',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueGrey,
+                ),
+              ),
+            ),
+            Positioned(
               top: posY,
               left: posX,
               child: const Ball(),
@@ -109,9 +122,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
           posX <= (batPosition + batWidth + diameter)) {
         vDir = Direction.up;
         randY = randomNumber();
+        safeSetState(() {
+          score++;
+        });
       } else {
         controller.stop();
-        dispose();
+        showMessage(context);
       }
     }
     if (posY <= 0 && vDir == Direction.up) {
@@ -132,5 +148,45 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
         function();
       });
     }
+  }
+
+  void showMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Game Over'),
+        content: const Text('Would you like to play again?'),
+        actions: [
+          TextButton(
+            child: const Text('Yes'),
+            onPressed: () {
+              setState(
+                () {
+                  posX = 0;
+                  posY = 0;
+                  score = 0;
+                },
+              );
+              Navigator.of(context).pop();
+              controller.repeat();
+            },
+          ),
+          TextButton(
+            child: const Text('No'),
+            onPressed: () {
+              setState(
+                () {
+                  posX = 0;
+                  posY = 0;
+                  score = 0;
+                },
+              );
+              Navigator.of(context).pop();
+              dispose();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

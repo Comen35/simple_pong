@@ -9,34 +9,58 @@ class Pong extends StatefulWidget {
   State<Pong> createState() => _PongState();
 }
 
-class _PongState extends State<Pong> {
+class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   double width = 0;
   double height = 0;
-  double posX = 0;
-  double posY = 0;
+  late double posX;
+  late double posY;
   double batWidth = 0;
   double batHeight = 0;
   double batPosition = 0;
+  late Animation<double> animation;
+  late AnimationController controller;
+
+  @override
+  void initState() {
+    posX = 0;
+    posY = 0;
+    controller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+    animation = Tween<double>(begin: 0, end: 100).animate(controller);
+    animation.addListener(() {
+      setState(() {
+        posX++;
+        posY++;
+      });
+    });
+    controller.forward();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    BoxConstraints constraints = const BoxConstraints();
-    height = constraints.maxHeight;
-    width = constraints.maxWidth;
-    batWidth = width / 5;
-    batHeight = height / 20;
-
-    return Stack(
-      children: [
-        const Positioned(
-          top: 0,
-          child: Ball(),
-        ),
-        Positioned(
-          bottom: 0,
-          child: Bat(width: batWidth, height: batHeight),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        height = constraints.maxHeight;
+        width = constraints.maxWidth;
+        batWidth = width / 5;
+        batHeight = height / 20;
+        return Stack(
+          children: [
+            Positioned(
+              top: posY,
+              left: posX,
+              child: const Ball(),
+            ),
+            Positioned(
+              bottom: 0,
+              child: Bat(width: batWidth, height: batHeight),
+            ),
+          ],
+        );
+      },
     );
   }
 }

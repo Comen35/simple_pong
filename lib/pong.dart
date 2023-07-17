@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:simple_pong/ball.dart';
 import 'package:simple_pong/bat.dart';
@@ -24,6 +26,8 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
   Direction vDir = Direction.down;
   Direction hDir = Direction.right;
   double increment = 3;
+  double randX = 1;
+  double randY = 1;
 
   @override
   void initState() {
@@ -36,8 +40,12 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     animation = Tween<double>(begin: 0, end: 100).animate(controller);
     animation.addListener(() {
       safeSetState(() {
-        (hDir == Direction.right) ? posX += increment : posX -= increment;
-        (vDir == Direction.down) ? posY += increment : posY -= increment;
+        (hDir == Direction.right)
+            ? posX += ((increment * randX).round())
+            : posX -= ((increment * randX).round());
+        (vDir == Direction.down)
+            ? posY += ((increment * randY).round())
+            : posY -= ((increment * randY).round());
       });
       checkBorders();
     });
@@ -80,18 +88,27 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     );
   }
 
+  double randomNumber() {
+    var ran = Random();
+    int myNum = ran.nextInt(101);
+    return (50 + myNum) / 100;
+  }
+
   void checkBorders() {
     double diameter = 50;
     if (posX <= 0 && hDir == Direction.left) {
       hDir = Direction.right;
+      randX = randomNumber();
     }
     if (posX >= width - diameter && hDir == Direction.right) {
       hDir = Direction.left;
+      randX = randomNumber();
     }
     if (posY >= height - diameter - batHeight && vDir == Direction.down) {
       if (posX >= (batPosition - diameter) &&
           posX <= (batPosition + batWidth + diameter)) {
         vDir = Direction.up;
+        randY = randomNumber();
       } else {
         controller.stop();
         dispose();
@@ -99,6 +116,7 @@ class _PongState extends State<Pong> with SingleTickerProviderStateMixin {
     }
     if (posY <= 0 && vDir == Direction.up) {
       vDir = Direction.down;
+      randY = randomNumber();
     }
   }
 
